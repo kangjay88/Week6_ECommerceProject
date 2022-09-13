@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% for p in cart %}
+    <a class="card text-decoration-none text-dark" style="width: 18rem;" href ="{{ url_for('shop.getOneProduct', product_id=p.id) }}">
+        <img src="{{ p.img_url }}" class="card-img-top" alt="{{ p.product_name }}">
+        <div class="card-body">
+        <h1 class="card-title">{{ p.product_name }}</h1>
+        <p class="card-text">{{ p.description }}</p>
+        <small>
+            {{ p.price }}
+        </small>
+        </div>
+        {% if current_user.is_authenticated %}
+        
+        <a class = "btn btn-danger" href ="{{ url_for('shop.removeFromCart', product_id = p.id) }}">Delete</a>
+    
+        {% endif %}
+    </a>
+    {% endfor %}
+
+    <a class = "btn btn-danger" href ="{{ url_for('shop.deleteAll') }}">Delete All</a>
+{% endblock %}

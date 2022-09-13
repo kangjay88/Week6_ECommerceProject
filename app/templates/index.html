@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+    {% block content %}
+    <img src="https://static.bhphotovideo.com/explora/sites/default/files/styles/960/public/ctv-793-ts.png?itok=orReGgdI" class="img-fluid" alt="...">
+    
+    {% for p in products %}
+    <div class="container">
+        <div class="row">
+        
+        <a class="card text-decoration-none text-dark" style="width: 18rem;" href ="{{ url_for('shop.getOneProduct', product_id=p.id) }}">
+            <img src="{{ p.img_url }}" class="card-img-top" alt="{{ p.product_name }}">
+            <div class="card-body">
+              <h1 class="card-title">{{ p.product_name }}</h1>
+              <p class="card-text">{{ p.description }}</p>
+              <small>
+                {{ p.price }}
+              </small>
+            </div>
+        </a>
+    {% endfor %}
+        
+        </div>
+    </div>
+
+    {% endblock %}
