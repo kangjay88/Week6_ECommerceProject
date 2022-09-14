@@ -65,3 +65,37 @@ def signMeUp():
             flash('Invalid form. Please try again', 'danger')
     return render_template('signup.html', form = form)
 
+
+# -----------------------------------REACT ROUTES ===================================#
+
+@auth.route('/api/signup', methods=["POST"])
+def apiSignMeUp():
+    data = request.json
+     
+    username = data['username']
+    email = data['email']
+    password = data['password']
+
+    # add user to database
+    user = User(username, email, password)
+
+    # add instance to our db
+    db.session.add(user)
+    db.session.commit()
+    return {
+        'status': 'ok',
+        'message': f"Successfully created user {username}"
+    }
+
+
+from app.apiauthhelper import basic_auth, token_auth
+
+@auth.route('/token', methods=['POST'])
+@basic_auth.login_required
+def getToken():
+    user = basic_auth.current_user()
+    return {
+                'status': 'ok',
+                'message': "You have successfully logged in",
+                'data':  user.to_dict()
+            }

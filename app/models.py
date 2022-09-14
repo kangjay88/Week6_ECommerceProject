@@ -16,6 +16,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(50), nullable=False, unique = True)
     email = db.Column(db.String(150), nullable=False, unique = True)
     password = db.Column(db.String(250), nullable=False)
+    apitoken = db.Column(db.String, default=None, nullable=True)
     cart = db.relationship("Product",
         secondary = cart,
         backref = 'shoppers',
@@ -43,6 +44,14 @@ class User(db.Model, UserMixin):
         db.session.query(cart).delete()
         db.session.commit()
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'token': self.apitoken
+        }
+        
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_name = db.Column(db.String(150), nullable=False)
