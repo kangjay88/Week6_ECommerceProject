@@ -1,55 +1,42 @@
 from flask import Blueprint, request, render_template, redirect, url_for, flash
+from ..apiauthhelper import token_required
 from flask_login import current_user, login_required
 from app.models import User, Product, db
 
 shop = Blueprint('shop', __name__, template_folder='shoptemplates')
 
-@shop.route('/products')
+# ============ API ROUTES =====================
+@shop.route('/api/products')
 def getAllProducts():
     products = Product.query.all()
-    return render_template('index.html', products = products)
 
-@shop.route('/products/<int:product_id>')
+    return {
+        'status': 'ok',
+        'products': [p.to_dict() for p in products] 
+    }
+
+@shop.route('/api/products/<int:product_id>')
 def getOneProduct(product_id):
     product = Product.query.get(product_id)
-    return render_template('oneproduct.html', product = product)
+    return {
+        'status': 'ok',
+        'product': product.to_dict()
+    }
 
-@shop.route('/cart')
-@login_required
-def getUserCart():
-    if current_user.is_authenticated:
-        cart = current_user.myCart()
-    
-    return render_template('cart.html', cart = cart)
-    
+@shop.route('/api/cart')
+@token_required
+def getCart(user):
 
-@shop.route('/cart/add/<int:product_id>', methods=["GET", "POST"])
-@login_required
-def addToCart(product_id):
+    return {
+        'status': 'ok',
+        'cart': [p.to_dict() for p in user.getCart()]
+        }
+
+@shop.route('/api/cart/add', methods=["POST"])
+@token_required
+def addToCart(user):
+    data = request.json
+    product_id = data['productId']
     product = Product.query.get(product_id)
-    current_user.add(product)
-    flash('Successfully added to Cart!', 'success')
-    return redirect(url_for('shop.getAllProducts'))
-
-@shop.route('/cart/remove/<int:product_id>', methods=["GET", "POST"])
-@login_required
-def removeFromCart(product_id):
-    product = Product.query.get(product_id)
-    cart_set = set()
-    if current_user.is_authenticated:
-        cart = current_user.cart.all()
-        cart_set = {x.id for x in cart}
-    
-        if product.id in cart_set:
-            current_user.delete(product)
-            
-    return redirect(url_for('shop.getAllProducts'))
-    
-@shop.route('/cart/deleteall')
-@login_required
-def deleteAll():
-    if current_user.is_authenticated:
-        flash('Your cart has been deleted!', 'success')
-        current_user.deleteall()
-        
-    return render_template('cart.html')
+    user.addToCart(product)
+    return {'status': 'ok','message': 'Succesfully added to cart.'}

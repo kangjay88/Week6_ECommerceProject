@@ -27,6 +27,7 @@ class User(db.Model, UserMixin):
         self.username = username
         self.email = email
         self.password = generate_password_hash(password)
+        self.apitoken
 
     def add(self, product):
         self.cart.append(product)
